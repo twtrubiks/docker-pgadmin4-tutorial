@@ -18,9 +18,18 @@ Linux 安裝 pgadmin4 在本機的方法可參考 [PostgreSQL - Linux downloads 
 
 先建立 `/etc/apt/sources.list.d/pgdg.list` 檔案並加入 repository
 
+ubuntu 18.04
+
 ```cmd
 sudo vim /etc/apt/sources.list.d/pgdg.list
 deb http://apt.postgresql.org/pub/repos/apt/ YOUR_UBUNTU_VERSION_HERE-pgdg main
+```
+
+ubuntu 20.04
+
+```cmd
+sudo vim /etc/apt/sources.list.d/pgdg.list
+deb [arch=amd64] http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main
 ```
 
 注意到這邊的 `YOUR_UBUNTU_VERSION_HERE`，要如何查看自己的版本，
