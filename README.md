@@ -8,49 +8,34 @@
 
 pgadmin4 是連接 PostgreSQL 的 GUI 工具，
 
-Windows 安裝 pgadmin4 在本機的方法很簡單，可參考 [pgadmin-4-windows](https://www.pgadmin.org/download/pgadmin-4-windows/)。
+Linux 安裝 pgadmin4 在本機的方法可參考 [pgAdmin 4 (APT)](https://www.pgadmin.org/download/pgadmin-4-apt/)
 
-Linux 安裝 pgadmin4 在本機的方法可參考 [PostgreSQL - Linux downloads (Ubuntu)](https://www.postgresql.org/download/linux/ubuntu/)
+```txt
+#
+# Setup the repository
+#
 
-因為 pgadmin4 算是這個 repository 包含的第三方 addons，
+# Install the public key for the repository (if not done previously):
+sudo curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo apt-key add
 
-安裝方法在這邊稍微說明一下，
+# Create the repository configuration file:
+sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
 
-先建立 `/etc/apt/sources.list.d/pgdg.list` 檔案並加入 repository
+#
+# Install pgAdmin
+#
 
-```cmd
-sudo vim /etc/apt/sources.list.d/pgdg.list
-deb http://apt.postgresql.org/pub/repos/apt/ YOUR_UBUNTU_VERSION_HERE-pgdg main
-```
-
-注意到這邊的 `YOUR_UBUNTU_VERSION_HERE`，要如何查看自己的版本，
-
-執行已下指令
-
-```cmd
-lsb_release -a
-```
-![alt tag](https://i.imgur.com/Ps8bYwd.png)
-
-這邊可以看到我的版本是 bionic，
-
-所以就填入，
-
-```cmd
-deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main
-```
-
-再來是加入 repository signing key，然後更新 package lists
-
-```cmd
-sudo wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-sudo apt update
-```
-
-最後就是安裝 pgadmin4
-
-```cmd
+# Install for both desktop and web modes:
 sudo apt install pgadmin4
+
+# Install for desktop mode only:
+sudo apt install pgadmin4-desktop
+
+# Install for web mode only:
+sudo apt install pgadmin4-web
+
+# Configure the webserver, if you installed pgadmin4-web:
+sudo /usr/pgadmin4/bin/setup-web.sh
 ```
 
 在 App 中可以看到 pgadmin4 的圖示
@@ -85,7 +70,56 @@ docker run -p 5050:80 \
 
 ![alt tag](https://i.imgur.com/nylk0Em.png)
 
-還有更多的參數可以設定，文件可參考 [container_deployment](https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html)。
+## docker compose 安裝 pgadmin4
+
+[docker-compose.yml](https://github.com/twtrubiks/docker-pgadmin4-tutorial/blob/master/docker-compose.yml) 版本,
+
+如果你是使用 docker 內的 pgadmin4, 然後你想要連線到容器內的 db,
+
+pgadmin4 的連線 host 要填 docker 的 service name,
+
+以這個例子, host name 就是要填 `db`.
+
+```yml
+version: '3.5'
+
+services:
+
+  db:
+      image: postgres:16.2
+      # ports:
+      #   - "5432:5432"
+      environment:
+        - POSTGRES_DB=postgres
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - PGDATA=/var/lib/postgresql/data/pgdata
+      volumes:
+        - db-data:/var/lib/postgresql/data/pgdata
+
+  pgadmin4:
+      container_name: my_pgadmin4
+      image: dpage/pgadmin4
+      restart: "always"
+      environment:
+        PGADMIN_DEFAULT_EMAIL: "YOUR@gmail.com"
+        PGADMIN_DEFAULT_PASSWORD: "PASSWORD"
+        PGADMIN_CONFIG_SESSION_EXPIRATION_TIME: 365
+        PGADMIN_CONFIG_MAX_SESSION_IDLE_TIME: 60
+      volumes:
+        - pgadmin4-data:/var/lib/pgadmin
+      ports:
+        - "5050:80"
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+
+volumes:
+    db-data:
+    pgadmin4-data:
+
+```
+
+更多的參數設定，文件可參考 [container_deployment](https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html)
 
 ## Reference
 

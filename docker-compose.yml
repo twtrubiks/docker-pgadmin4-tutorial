@@ -1,0 +1,36 @@
+version: '3.5'
+
+services:
+
+  db:
+      image: postgres:16.2
+      # ports:
+      #   - "5432:5432"
+      environment:
+        - POSTGRES_DB=postgres
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - PGDATA=/var/lib/postgresql/data/pgdata
+      volumes:
+        - db-data:/var/lib/postgresql/data/pgdata
+
+  pgadmin4:
+      container_name: my_pgadmin4
+      image: dpage/pgadmin4
+      restart: "always"
+      environment:
+        PGADMIN_DEFAULT_EMAIL: "YOUR@gmail.com"
+        PGADMIN_DEFAULT_PASSWORD: "PASSWORD"
+        PGADMIN_CONFIG_SESSION_EXPIRATION_TIME: 365
+        PGADMIN_CONFIG_MAX_SESSION_IDLE_TIME: 60
+      volumes:
+        - pgadmin4-data:/var/lib/pgadmin
+      ports:
+        - "5050:80"
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+
+volumes:
+    db-data:
+    pgadmin4-data:
+
